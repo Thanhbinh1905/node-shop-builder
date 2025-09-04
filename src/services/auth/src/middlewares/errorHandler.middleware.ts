@@ -16,8 +16,8 @@ export const errorHandler = (
   }
 
   console.error(err.stack);
-  res.status(500).json({
-    stackTrace: err.stack,
+  return res.status(500).json({
+    stackTrace: process.env.NODE_ENV === 'production' ? null : err.stack,
     status: 'error',
     statusCode: 500,
     message: 'Something went wrong on the server.',

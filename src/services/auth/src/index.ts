@@ -1,7 +1,10 @@
+import dotenv from 'dotenv';
 import express from "express";
-import routes from "./routes";
-import { globalMiddleware } from "./middlewares/global.middleware";
 import { errorHandler } from "./middlewares/errorHandler.middleware";
+import { globalMiddleware } from "./middlewares/global.middleware";
+import routes from "./routes";
+
+dotenv.config();
 
 const app = express();
 
