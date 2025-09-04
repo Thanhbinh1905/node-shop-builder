@@ -1,0 +1,25 @@
+# Node.js
+# ========================
+
+# dependencies
+node_modules/
+dist/
+.env
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Mac
+.DS_Store
+
+# IDEs
+.vscode/
+.idea/
+
+# Editors
+.history
+.sublime-workspace
+.sublime-project
