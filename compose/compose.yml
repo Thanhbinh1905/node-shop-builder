@@ -1,0 +1,16 @@
+name: node-shop-builder
+
+services:
+  userdb:
+    container_name: userdb
+    image: mongo
+    restart: always
+    ports:
+      - 27017:27017
+    volumes:
+      - mongo_user:/data/db
+    environment:
+      - TZ=Asia/Ho_Chi_Minh
+
+volumes:
+  mongo_user:
