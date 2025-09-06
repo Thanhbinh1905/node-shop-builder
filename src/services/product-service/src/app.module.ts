@@ -12,7 +12,6 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       isGlobal: true,
       envFilePath: './product.env',
     }),
-    ProductModule,
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
@@ -21,6 +20,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
         url: configService.get<string>('DATABASE_URL'),
       }),
     }),
+    ProductModule,
   ],
   controllers: [AppController],
   providers: [AppService],

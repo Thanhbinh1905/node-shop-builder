@@ -1,4 +1,5 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Inventory } from "./inventory.entity";
 
 @Entity('product_variants_replica')
 export class ProductVariantReplica {
@@ -9,10 +10,11 @@ export class ProductVariantReplica {
   product_id: string;
 
   @Column('uuid')
-  product_variant_id: string;
+  merchant_id: string;
 
   @CreateDateColumn({ name: 'created_at' })
   created_at: Date;
-}
 
-// TODO: References
+  @OneToMany(() => Inventory, (inventory) => inventory.productVariant)
+  inventories: Inventory[];
+}
