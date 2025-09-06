@@ -30,6 +30,8 @@ export class Product {
   variants: ProductVariant[];
 }
 
+
+
 // =============================
 // Variant Dimensions
 // =============================
