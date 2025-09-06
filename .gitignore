@@ -24,3 +24,5 @@ lerna-debug.log*
 .history
 .sublime-workspace
 .sublime-project
+
+*:Zone.Identifier

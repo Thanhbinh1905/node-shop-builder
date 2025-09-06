@@ -25,6 +25,7 @@ exports.ProductModule = ProductModule = __decorate([
                 product_entity_1.VariantDimension,
                 product_entity_1.VariantDimensionValue,
                 product_entity_1.ProductVariantValue,
+                product_entity_1.Category
             ]),
         ],
         controllers: [product_controller_1.ProductController, dimension_controller_1.DimensionController],

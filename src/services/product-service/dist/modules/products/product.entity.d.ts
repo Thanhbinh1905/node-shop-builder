@@ -1,11 +1,21 @@
+export declare class Category {
+    id: string;
+    merchant_id: string;
+    name: string;
+    created_at: Date;
+    updated_at: Date;
+    products: Product[];
+}
 export declare class Product {
     id: string;
     name: string;
     description: string;
     brand: string;
     category_id: string;
+    merchant_id: string;
     created_at: Date;
     updated_at: Date;
+    category: Category;
     variants: ProductVariant[];
 }
 export declare class VariantDimension {
