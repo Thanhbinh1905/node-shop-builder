@@ -1,0 +1,45 @@
+### Test Product Service API
+
+### Create a dimension
+POST http://localhost:3000/dimensions
+Content-Type: application/json
+
+{
+  "name": "Color"
+}
+
+### Add dimension values
+POST http://localhost:3000/dimensions/values
+Content-Type: application/json
+
+{
+  "dimensionId": "{{dimensionId}}",
+  "value": "Red"
+}
+
+### Create a product
+POST http://localhost:3000/products
+Content-Type: application/json
+
+{
+  "name": "Test Product",
+  "description": "A test product",
+  "brand": "Test Brand"
+}
+
+### Get all products
+GET http://localhost:3000/products?page=1&limit=10
+
+### Create a variant
+POST http://localhost:3000/products/{{productId}}/variants
+Content-Type: application/json
+
+{
+  "sku": "TEST-001",
+  "price": 99.99,
+  "stock": 100,
+  "dimensionValueIds": ["{{dimensionValueId}}"]
+}
+
+### Get all dimensions
+GET http://localhost:3000/dimensions
