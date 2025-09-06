@@ -10,9 +10,9 @@ import {
   ValidationPipe,
   UsePipes,
 } from '@nestjs/common';
-import { ProductService } from './product.service';
-import { CreateDimensionDto } from './dto/create-dimension.dto';
-import { CreateDimensionValueDto } from './dto/create-dimension-value.dto';
+import { ProductService } from '../service/product.service';
+import { CreateDimensionDto } from '../dto/create-dimension.dto';
+import { CreateDimensionValueDto } from '../dto/create-dimension-value.dto';
 
 @Controller('dimensions')
 @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))

@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like, FindManyOptions, LessThan } from 'typeorm';
-import { Product, ProductVariant, VariantDimension, VariantDimensionValue, ProductVariantValue } from './product.entity';
-import { QueryProductDto } from './dto/query-product.dto';
+import { Product, ProductVariant, VariantDimension, VariantDimensionValue, ProductVariantValue, Category } from '../entity/product.entity';
+import { QueryProductDto } from '../dto/query-product.dto';
 
 @Injectable()
 export class ProductService {
@@ -21,7 +21,22 @@ export class ProductService {
 
     @InjectRepository(ProductVariantValue)
     private readonly variantValueRepo: Repository<ProductVariantValue>,
+
+    @InjectRepository(Category)
+    private readonly categoryRepo: Repository<Category>,
   ) {}
+  // =============================
+  // Category CRUD
+  // =============================
+
+  async createCategory(data: Partial<Category>): Promise<Category> {
+    const category = this.categoryRepo.create(data)
+    return this.categoryRepo.save(category)
+  }
+
+  async removeCategory(id: string): Promise<void> {
+    await this.categoryRepo.delete(id)
+  }
 
   // =============================
   // Product CRUD

@@ -16,4 +16,8 @@ export class CreateProductDto {
   @IsUUID()
   @IsOptional()
   category_id?: string;
+
+  @IsUUID()
+  @IsNotEmpty()
+  merchant_id: string;
 }

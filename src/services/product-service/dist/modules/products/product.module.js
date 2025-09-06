@@ -8,10 +8,11 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProductModule = void 0;
 const common_1 = require("@nestjs/common");
-const product_controller_1 = require("./product.controller");
-const dimension_controller_1 = require("./dimension.controller");
-const product_service_1 = require("./product.service");
-const product_entity_1 = require("./product.entity");
+const product_controller_1 = require("./controller/product.controller");
+const dimension_controller_1 = require("./controller/dimension.controller");
+const category_controller_1 = require("./controller/category.controller");
+const product_service_1 = require("./service/product.service");
+const product_entity_1 = require("./entity/product.entity");
 const typeorm_1 = require("@nestjs/typeorm");
 let ProductModule = class ProductModule {
 };
@@ -28,7 +29,7 @@ exports.ProductModule = ProductModule = __decorate([
                 product_entity_1.Category
             ]),
         ],
-        controllers: [product_controller_1.ProductController, dimension_controller_1.DimensionController],
+        controllers: [product_controller_1.ProductController, dimension_controller_1.DimensionController, category_controller_1.CategoryController],
         providers: [product_service_1.ProductService],
         exports: [product_service_1.ProductService],
     })

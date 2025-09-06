@@ -9,11 +9,10 @@ export class Category {
   id: string;
 
   @Column({ type: 'uuid' })
-  merchant_id: string; // reference merchant service
+  merchant_id: string;
 
   @Column({ type: 'varchar', length: 100 })
   name: string;
-
 
   @CreateDateColumn({ name: 'created_at' })
   created_at: Date;
@@ -39,13 +38,13 @@ export class Product {
   @Column({ nullable: true })
   description: string;
 
-  @Column({ nullable: true })
+  @Column({ nullable: true, length: 100 })
   brand: string;
 
   @Column({ type: 'uuid', nullable: true })
   category_id: string;
 
-  @Column({ type: 'uuid', nullable: true })
+  @Column({ type: 'uuid'})
   merchant_id: string; // reference merchant service
 
   @CreateDateColumn({ name: 'created_at' })

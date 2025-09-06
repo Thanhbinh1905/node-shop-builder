@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
-import { ProductController } from './product.controller';
-import { DimensionController } from './dimension.controller';
-import { ProductService } from './product.service';
-import { Product, ProductVariant, VariantDimension, VariantDimensionValue, ProductVariantValue, Category } from './product.entity'
+import { ProductController } from './controller/product.controller';
+import { DimensionController } from './controller/dimension.controller';
+import { CategoryController } from './controller/category.controller';
+import { ProductService } from './service/product.service';
+import { Product, ProductVariant, VariantDimension, VariantDimensionValue, ProductVariantValue, Category } from './entity/product.entity'
 import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
@@ -16,7 +17,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
       Category
     ]),
   ],
-  controllers: [ProductController, DimensionController],
+  controllers: [ProductController, DimensionController, CategoryController],
   providers: [ProductService],
   exports: [ProductService],
 })

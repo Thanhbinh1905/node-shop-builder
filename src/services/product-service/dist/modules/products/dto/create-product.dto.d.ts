@@ -3,4 +3,5 @@ export declare class CreateProductDto {
     description?: string;
     brand?: string;
     category_id?: string;
+    merchant_id: string;
 }

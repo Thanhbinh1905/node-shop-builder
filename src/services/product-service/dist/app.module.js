@@ -13,14 +13,26 @@ const app_service_1 = require("./app.service");
 const product_module_1 = require("./modules/products/product.module");
 const typeorm_1 = require("@nestjs/typeorm");
 const database_config_1 = require("./config/database.config");
+const config_1 = require("@nestjs/config");
 let AppModule = class AppModule {
 };
 exports.AppModule = AppModule;
 exports.AppModule = AppModule = __decorate([
     (0, common_1.Module)({
         imports: [
+            config_1.ConfigModule.forRoot({
+                isGlobal: true,
+                envFilePath: './product.env',
+            }),
             product_module_1.ProductModule,
-            typeorm_1.TypeOrmModule.forRoot(database_config_1.databaseConfig),
+            typeorm_1.TypeOrmModule.forRootAsync({
+                imports: [config_1.ConfigModule],
+                inject: [config_1.ConfigService],
+                useFactory: async (configService) => ({
+                    ...database_config_1.databaseConfig,
+                    url: configService.get('DATABASE_URL'),
+                }),
+            }),
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

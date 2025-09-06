@@ -12,12 +12,12 @@ import {
   ValidationPipe,
   UsePipes,
 } from '@nestjs/common';
-import { ProductService } from './product.service';
-import { CreateProductDto } from './dto/create-product.dto';
-import { UpdateProductDto } from './dto/update-product.dto';
-import { CreateVariantDto } from './dto/create-variant.dto';
-import { UpdateVariantDto } from './dto/update-variant.dto';
-import { QueryProductDto } from './dto/query-product.dto';
+import { ProductService } from '../service/product.service';
+import { CreateProductDto } from '../dto/create-product.dto';
+import { UpdateProductDto } from '../dto/update-product.dto';
+import { CreateVariantDto } from '../dto/create-variant.dto';
+import { UpdateVariantDto } from '../dto/update-variant.dto';
+import { QueryProductDto } from '../dto/query-product.dto';
 
 @Controller('products')
 @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))

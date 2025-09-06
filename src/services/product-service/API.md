@@ -13,6 +13,24 @@ This is a NestJS-based microservice for managing products, variants, and dimensi
 
 ## API Endpoints
 
+### Category
+
+#### Create Category
+```
+POST /categories
+Content-Type: application/json
+
+{
+  "name": "Product Name",
+  "merchant_id": uuid
+}
+```
+
+#### Delete Category
+```
+DELETE /categories/:id
+```
+
 ### Products
 
 #### Create Product
@@ -27,6 +45,8 @@ Content-Type: application/json
   "category_id": "uuid"
 }
 ```
+
+
 
 #### Get All Products
 ```
