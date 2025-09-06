@@ -131,9 +131,6 @@ export class ProductVariant {
   @Column({ type: 'decimal', precision: 12, scale: 2 })
   price: number;
 
-  @Column({ type: 'int', default: 0 })
-  stock: number;
-
   @CreateDateColumn({ name: 'created_at' })
   created_at: Date;
 
