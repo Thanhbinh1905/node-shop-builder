@@ -1,4 +1,29 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, OneToMany, PrimaryColumn, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+
+/* =============================
+   Category
+============================= */
+@Entity('categories')
+export class Category {
+  @PrimaryGeneratedColumn('uuid')
+  id: string;
+
+  @Column({ type: 'uuid' })
+  merchant_id: string; // reference merchant service
+
+  @Column({ type: 'varchar', length: 100 })
+  name: string;
+
+
+  @CreateDateColumn({ name: 'created_at' })
+  created_at: Date;
+
+  @UpdateDateColumn({ name: 'updated_at' })
+  updated_at: Date;
+
+  @OneToMany(() => Product, (product) => product.category)
+  products: Product[];
+}
 
 // =============================
 // Product
@@ -20,17 +45,24 @@ export class Product {
   @Column({ type: 'uuid', nullable: true })
   category_id: string;
 
-  @Column({ type: 'timestamp', default: () => 'NOW()' })
+  @Column({ type: 'uuid', nullable: true })
+  merchant_id: string; // reference merchant service
+
+  @CreateDateColumn({ name: 'created_at' })
   created_at: Date;
 
-  @Column({ type: 'timestamp', default: () => 'NOW()' })
+  @UpdateDateColumn({ name: 'updated_at' })
   updated_at: Date;
+
+  @ManyToOne(() => Category, (category) => category.products, {
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'category_id' })
+  category: Category;
 
   @OneToMany(() => ProductVariant, (variant) => variant.product)
   variants: ProductVariant[];
 }
-
-
 
 // =============================
 // Variant Dimensions
@@ -103,10 +135,10 @@ export class ProductVariant {
   @Column({ type: 'int', default: 0 })
   stock: number;
 
-  @Column({ type: 'timestamp', default: () => 'NOW()' })
+  @CreateDateColumn({ name: 'created_at' })
   created_at: Date;
 
-  @Column({ type: 'timestamp', default: () => 'NOW()' })
+  @UpdateDateColumn({ name: 'updated_at' })
   updated_at: Date;
 
   @OneToMany(() => ProductVariantValue, (pvValue) => pvValue.variant)
@@ -118,10 +150,10 @@ export class ProductVariant {
 // =============================
 @Entity('product_variant_values')
 export class ProductVariantValue {
-  @Column('uuid', { primary: true })
+  @PrimaryColumn('uuid')
   variant_id: string;
 
-  @Column('uuid', { primary: true })
+  @PrimaryColumn('uuid')
   dimension_value_id: string;
 
   @ManyToOne(() => ProductVariant, (variant) => variant.variantValues, {
