@@ -8,6 +8,8 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ProductModule = void 0;
 const common_1 = require("@nestjs/common");
+const microservices_1 = require("@nestjs/microservices");
+const config_1 = require("@nestjs/config");
 const product_controller_1 = require("./controller/product.controller");
 const dimension_controller_1 = require("./controller/dimension.controller");
 const category_controller_1 = require("./controller/category.controller");
@@ -20,6 +22,7 @@ exports.ProductModule = ProductModule;
 exports.ProductModule = ProductModule = __decorate([
     (0, common_1.Module)({
         imports: [
+            config_1.ConfigModule,
             typeorm_1.TypeOrmModule.forFeature([
                 product_entity_1.Product,
                 product_entity_1.ProductVariant,
@@ -27,6 +30,23 @@ exports.ProductModule = ProductModule = __decorate([
                 product_entity_1.VariantDimensionValue,
                 product_entity_1.ProductVariantValue,
                 product_entity_1.Category
+            ]),
+            microservices_1.ClientsModule.registerAsync([
+                {
+                    name: 'KAFKA_PRODUCT_CLIENT',
+                    imports: [config_1.ConfigModule],
+                    inject: [config_1.ConfigService],
+                    useFactory: (configService) => ({
+                        transport: microservices_1.Transport.KAFKA,
+                        options: {
+                            client: {
+                                clientId: configService.get('KAFKA_CLIENT_ID') || 'product-service',
+                                brokers: (configService.get('KAFKA_BROKERS') || 'localhost:9092').split(','),
+                            },
+                            producerOnlyMode: true,
+                        },
+                    }),
+                },
             ]),
         ],
         controllers: [product_controller_1.ProductController, dimension_controller_1.DimensionController, category_controller_1.CategoryController],

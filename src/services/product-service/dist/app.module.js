@@ -24,7 +24,6 @@ exports.AppModule = AppModule = __decorate([
                 isGlobal: true,
                 envFilePath: './product.env',
             }),
-            product_module_1.ProductModule,
             typeorm_1.TypeOrmModule.forRootAsync({
                 imports: [config_1.ConfigModule],
                 inject: [config_1.ConfigService],
@@ -33,6 +32,7 @@ exports.AppModule = AppModule = __decorate([
                     url: configService.get('DATABASE_URL'),
                 }),
             }),
+            product_module_1.ProductModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],
