@@ -12,7 +12,6 @@ import Redis from 'ioredis';
 
 @Module({
   imports: [
-    ConfigModule,
     TypeOrmModule.forFeature([
       Inventory,
       InventoryLog,
@@ -21,7 +20,6 @@ import Redis from 'ioredis';
     ClientsModule.registerAsync([
       {
         name: 'KAFKA_INVENTORY_CLIENT',
-        imports: [ConfigModule],
         inject: [ConfigService],
         useFactory: (configService: ConfigService) => ({
           transport: Transport.KAFKA,
@@ -53,3 +51,4 @@ import Redis from 'ioredis';
   exports: [InventoryService],
 })
 export class InventoryModule {}
+

@@ -10,7 +10,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 
 @Module({
   imports: [
-    ConfigModule,
     TypeOrmModule.forFeature([
       Product,
       ProductVariant,
@@ -22,7 +21,6 @@ import { TypeOrmModule } from '@nestjs/typeorm';
     ClientsModule.registerAsync([
       {
         name: 'KAFKA_PRODUCT_CLIENT',
-        imports: [ConfigModule],
         inject: [ConfigService],
         useFactory: (configService: ConfigService) => ({
           transport: Transport.KAFKA,
