@@ -12,5 +12,28 @@ services:
     environment:
       - TZ=Asia/Ho_Chi_Minh
 
+  catalogdb:
+    image: postgres:17.6-alpine3.22
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=catalog
+    ports:
+      - "5432:5432"
+    volumes:
+      - catalogdb_db:/var/lib/postgresql/data
+      
+  inventorydb:
+    image: postgres:17.6-alpine3.22
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=inventory
+    ports:
+      - "5433:5432"
+    volumes:
+      - inventory_db:/var/lib/postgresql/data
 volumes:
+  catalogdb_db:
+  inventory_db:
   mongo_user:

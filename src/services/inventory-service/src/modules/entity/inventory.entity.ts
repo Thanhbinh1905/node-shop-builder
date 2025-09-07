@@ -1,6 +1,6 @@
 import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { Warehouse } from "./warehouse.entity";
 import { InventoryLog } from "./inventory_log.entity";
+import { ProductVariantReplica } from "./product_variants_replica.entity";
 
 @Entity('inventory')
 export class Inventory {
@@ -8,7 +8,7 @@ export class Inventory {
   id: string;
 
   @Column('uuid', { nullable: true })
-  warehouse_id: string;
+  variant_id: string;
 
   @Column('uuid')
   product_variant_id: string;
@@ -25,12 +25,12 @@ export class Inventory {
   @UpdateDateColumn({ name: 'updated_at' })
   updated_at: Date;
 
-  @ManyToOne(() => Warehouse, (warehouse) => warehouse.inventories, {
+  @ManyToOne(() => ProductVariantReplica, (productVariant) => productVariant.inventories, {
       onDelete: 'SET NULL',
   })
-  @JoinColumn({ name: 'warehouse_id' })
-  warehouse: Warehouse;
-
+  @JoinColumn({ name: 'product_variant_id' })
+  productVariant: ProductVariantReplica;
+  
   @OneToMany(() => InventoryLog, (inventoryLog) => inventoryLog.inventory)
   logs: InventoryLog[]
 }
