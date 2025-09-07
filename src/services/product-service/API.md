@@ -84,7 +84,6 @@ Content-Type: application/json
 {
   "sku": "SKU-001",
   "price": 99.99,
-  "stock": 100,
   "dimensionValueIds": ["uuid1", "uuid2"]
 }
 ```
@@ -101,7 +100,6 @@ Content-Type: application/json
 
 {
   "price": 89.99,
-  "stock": 50
 }
 ```
 

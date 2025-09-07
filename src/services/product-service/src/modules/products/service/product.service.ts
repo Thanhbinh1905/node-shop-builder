@@ -1,11 +1,13 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Inject, OnModuleInit } from '@nestjs/common';
+import { ClientKafka } from '@nestjs/microservices';
+import { TOPICS } from '../../../config/kafka.config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like, FindManyOptions, LessThan } from 'typeorm';
 import { Product, ProductVariant, VariantDimension, VariantDimensionValue, ProductVariantValue, Category } from '../entity/product.entity';
 import { QueryProductDto } from '../dto/query-product.dto';
 
 @Injectable()
-export class ProductService {
+export class ProductService implements OnModuleInit {
   constructor(
     @InjectRepository(Product)
     private readonly productRepo: Repository<Product>,
@@ -24,7 +26,14 @@ export class ProductService {
 
     @InjectRepository(Category)
     private readonly categoryRepo: Repository<Category>,
+
+    @Inject('KAFKA_PRODUCT_CLIENT')
+    private readonly kafkaClient: ClientKafka,
   ) {}
+
+  async onModuleInit() {
+    await this.kafkaClient.connect();
+  }
   // =============================
   // Category CRUD
   // =============================
@@ -134,7 +143,6 @@ export class ProductService {
       product,
       sku: data.sku,
       price: data.price,
-      stock: data.stock || 0,
     });
     const savedVariant = await this.variantRepo.save(variant);
 
@@ -149,13 +157,28 @@ export class ProductService {
       await this.variantValueRepo.save(pvValues);
     }
 
-    return this.findVariant(savedVariant.id);
+    const fullVariant = await this.findVariant(savedVariant.id);
+
+    // Emit Kafka event for inventory-service
+    await this.kafkaClient.emit(TOPICS.PRODUCT_VARIANT_CREATED, {
+      key: fullVariant.id,
+      value: {
+        variant_id: fullVariant.id,
+        product_id: fullVariant.product_id,
+        merchant_id: fullVariant.product.merchant_id,
+        sku: fullVariant.sku,
+        price: fullVariant.price,
+        created_at: fullVariant.created_at,
+      },
+    });
+
+    return fullVariant;
   }
 
   async findVariant(id: string): Promise<ProductVariant> {
     const variant = await this.variantRepo.findOne({
       where: { id },
-      relations: ['variantValues', 'variantValues.dimension_value'],
+      relations: ['product', 'variantValues', 'variantValues.dimension_value'],
     });
     if (!variant) throw new NotFoundException('Variant not found');
     return variant;
@@ -224,17 +247,7 @@ export class ProductService {
     });
   }
 
-  async updateVariantStock(variantId: string, stock: number): Promise<ProductVariant> {
-    await this.variantRepo.update(variantId, { stock });
-    return this.findVariant(variantId);
-  }
-
-  async getLowStockVariants(threshold: number = 10): Promise<ProductVariant[]> {
-    return this.variantRepo.find({
-      where: { stock: LessThan(threshold) },
-      relations: ['product', 'variantValues', 'variantValues.dimension_value'],
-    });
-  }
+  // Inventory stock is managed by inventory-service via replicas and logs
 
   async removeDimensionValue(id: string): Promise<void> {
     const result = await this.dimensionValueRepo.delete(id);

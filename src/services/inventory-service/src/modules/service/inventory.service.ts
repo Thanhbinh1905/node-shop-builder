@@ -1,4 +1,7 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Inject, OnModuleInit } from '@nestjs/common';
+import { ClientKafka } from '@nestjs/microservices';
+import { TOPICS } from '../../config/kafka.config';
+import Redis from 'ioredis';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Inventory } from '../entity/inventory.entity';
@@ -11,8 +14,16 @@ import { ReserveInventoryDto } from '../dto/reserve-inventory.dto';
 import { UnreserveInventoryDto } from '../dto/unreserve-inventory.dto';
 import { InventoryResponseDto, InventoryLogResponseDto } from '../dto/inventory-response.dto';
 
+export const CACHE_KEYS = {
+  VARIANT: 'variant',
+};
+
+export const CACHE_TTL = {
+  VARIANT: 60 * 60, // 1 hour
+};
+
 @Injectable()
-export class InventoryService {
+export class InventoryService implements OnModuleInit {
   constructor(
     @InjectRepository(Inventory)
     private readonly inventoryRepository: Repository<Inventory>,
@@ -20,7 +31,39 @@ export class InventoryService {
     private readonly inventoryLogRepository: Repository<InventoryLog>,
     @InjectRepository(ProductVariantReplica)
     private readonly productVariantRepository: Repository<ProductVariantReplica>,
+    @Inject('KAFKA_INVENTORY_CLIENT') private readonly kafkaClient: ClientKafka,
+    @Inject('REDIS') private readonly redis: Redis,
   ) {}
+
+  async onModuleInit() {
+    // Subscribe to needed topics
+    this.kafkaClient.subscribeToResponseOf?.(TOPICS.PRODUCT_VARIANT_CREATED);
+    await this.kafkaClient.connect();
+  }
+
+  async processVariantCreated(value: any) {
+  const { variant_id, product_id, merchant_id } = value || {};
+  if (!variant_id || !product_id || !merchant_id) return;
+
+  // Upsert replica
+  const existing = await this.productVariantRepository.findOne({ where: { variant_id } });
+  if (existing) {
+    existing.product_id = product_id;
+    existing.merchant_id = merchant_id;
+    await this.productVariantRepository.save(existing);
+  } else {
+    const replica = this.productVariantRepository.create({
+      variant_id,
+      product_id,
+      merchant_id,
+    });
+    await this.productVariantRepository.save(replica);
+  }
+
+  // Cache in Redis
+  const cacheKey = `${CACHE_KEYS.VARIANT}:${variant_id}`;
+  await this.redis.set(cacheKey, JSON.stringify(value), 'EX', CACHE_TTL.VARIANT);
+}
 
   async createInventory(createInventoryDto: CreateInventoryDto): Promise<InventoryResponseDto> {
     // Check if product variant exists

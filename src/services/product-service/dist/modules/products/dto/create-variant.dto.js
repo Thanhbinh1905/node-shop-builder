@@ -14,7 +14,6 @@ const class_validator_1 = require("class-validator");
 class CreateVariantDto {
     sku;
     price;
-    stock;
     dimensionValueIds;
 }
 exports.CreateVariantDto = CreateVariantDto;
@@ -28,12 +27,6 @@ __decorate([
     (0, class_validator_1.Min)(0),
     __metadata("design:type", Number)
 ], CreateVariantDto.prototype, "price", void 0);
-__decorate([
-    (0, class_validator_1.IsNumber)(),
-    (0, class_validator_1.IsOptional)(),
-    (0, class_validator_1.Min)(0),
-    __metadata("design:type", Number)
-], CreateVariantDto.prototype, "stock", void 0);
 __decorate([
     (0, class_validator_1.IsArray)(),
     (0, class_validator_1.IsUUID)('4', { each: true }),
