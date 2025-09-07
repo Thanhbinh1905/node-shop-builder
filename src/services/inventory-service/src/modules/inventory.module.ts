@@ -8,6 +8,7 @@ import { ProductVariantReplica } from './entity/product_variants_replica.entity'
 import { InventoryService } from './service/inventory.service';
 import { InventoryConsumerController } from './messaging/consumer.controller';
 import { InventoryController } from './controller/inventory.controller';
+import Redis from 'ioredis';
 
 @Module({
   imports: [
@@ -45,8 +46,6 @@ import { InventoryController } from './controller/inventory.controller';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
         const url = configService.get<string>('REDIS_URL') || 'redis://localhost:6379';
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const Redis = require('ioredis');
         return new Redis(url);
       },
     },

@@ -74,7 +74,18 @@ services:
       - "5433:5432"
     volumes:
       - inventory_db:/var/lib/postgresql/data
+  basketdb:
+    image: postgres:17.6-alpine3.22
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=basket
+    ports:
+      - "5434:5432"
+    volumes:
+      - basket_db:/var/lib/postgresql/data
 volumes:
   catalogdb_db:
   inventory_db:
   mongo_user:
+  basket_db:
