@@ -13,6 +13,8 @@ import { AdjustInventoryDto } from '../dto/adjust-inventory.dto';
 import { ReserveInventoryDto } from '../dto/reserve-inventory.dto';
 import { UnreserveInventoryDto } from '../dto/unreserve-inventory.dto';
 import { InventoryResponseDto, InventoryLogResponseDto } from '../dto/inventory-response.dto';
+import { KafkaProducerService } from './producer.service';
+import { CheckoutItemDto } from '../dto/checkout.dto';
 
 export const CACHE_KEYS = {
   VARIANT: 'variant',
@@ -23,7 +25,7 @@ export const CACHE_TTL = {
 };
 
 @Injectable()
-export class InventoryService implements OnModuleInit {
+export class InventoryService {
   constructor(
     @InjectRepository(Inventory)
     private readonly inventoryRepository: Repository<Inventory>,
@@ -31,39 +33,100 @@ export class InventoryService implements OnModuleInit {
     private readonly inventoryLogRepository: Repository<InventoryLog>,
     @InjectRepository(ProductVariantReplica)
     private readonly productVariantRepository: Repository<ProductVariantReplica>,
-    @Inject('KAFKA_INVENTORY_CLIENT') private readonly kafkaClient: ClientKafka,
+    private readonly kafkaProducer: KafkaProducerService,
     @Inject('REDIS') private readonly redis: Redis,
   ) {}
 
-  async onModuleInit() {
-    // Subscribe to needed topics
-    this.kafkaClient.subscribeToResponseOf?.(TOPICS.PRODUCT_VARIANT_CREATED);
-    await this.kafkaClient.connect();
-  }
-
   async processVariantCreated(value: any) {
-  const { variant_id, product_id, merchant_id } = value || {};
-  if (!variant_id || !product_id || !merchant_id) return;
+    const { variant_id, product_id, merchant_id } = value || {};
+    if (!variant_id || !product_id || !merchant_id) return;
 
-  // Upsert replica
-  const existing = await this.productVariantRepository.findOne({ where: { variant_id } });
-  if (existing) {
-    existing.product_id = product_id;
-    existing.merchant_id = merchant_id;
-    await this.productVariantRepository.save(existing);
-  } else {
-    const replica = this.productVariantRepository.create({
-      variant_id,
-      product_id,
-      merchant_id,
-    });
-    await this.productVariantRepository.save(replica);
+    // Upsert replica
+    const existing = await this.productVariantRepository.findOne({ where: { variant_id } });
+    if (existing) {
+      existing.product_id = product_id;
+      existing.merchant_id = merchant_id;
+      await this.productVariantRepository.save(existing);
+    } else {
+      const replica = this.productVariantRepository.create({
+        variant_id,
+        product_id,
+        merchant_id,
+      });
+      await this.productVariantRepository.save(replica);
+    }
+
+    // Cache in Redis
+    const cacheKey = `${CACHE_KEYS.VARIANT}:${variant_id}`;
+    await this.redis.set(cacheKey, JSON.stringify(value), 'EX', CACHE_TTL.VARIANT);
   }
 
-  // Cache in Redis
-  const cacheKey = `${CACHE_KEYS.VARIANT}:${variant_id}`;
-  await this.redis.set(cacheKey, JSON.stringify(value), 'EX', CACHE_TTL.VARIANT);
-}
+  async processBasketCheckout(payload: {
+    userID: string
+    items: CheckoutItemDto[],
+    correlationId?: string;
+  }) {
+    const { userID, items, correlationId } = payload;
+
+    const failedItems: { product_variant_id: string; requested: number; available: number }[] = [];
+
+    // Step 1: validate all items trước
+    for (const item of items) {
+      const inventory = await this.inventoryRepository.findOne({
+        where: { product_variant_id: item.product_variant_id },
+      });
+
+      const currentQty = inventory ? Number(inventory.quantity) : 0;
+      const currentReserved = inventory ? Number(inventory.reserved_quantity) : 0;
+      const reqQty = Number(item.quantity ?? 0);
+      const available = currentQty - currentReserved;
+
+      if (!inventory || available < reqQty || reqQty <= 0 || Number.isNaN(reqQty)) {
+        failedItems.push({
+          product_variant_id: item.product_variant_id,
+          requested: reqQty,
+          available,
+        });
+      }
+    }
+
+    // Nếu có ít nhất 1 fail → emit fail toàn bộ và return
+    if (failedItems.length > 0) {
+      await this.kafkaProducer.emit(TOPICS.INVENTORY_RESERVE_FAILED, {
+        userID,
+        items: failedItems,
+        correlationId,
+        reason: 'Insufficient stock',
+      });
+      console.log("❌ fail", failedItems);
+      return;
+    }
+
+    // Step 2: tất cả pass → tiến hành reserve
+    for (const item of items) {
+      const inventory = await this.inventoryRepository.findOne({
+        where: { product_variant_id: item.product_variant_id },
+      });
+
+      if (!inventory) {
+        throw new Error(`Inventory not found for product_variant_id=${item.product_variant_id}`);
+      }
+
+      const currentReserved = Number(inventory.reserved_quantity ?? 0);
+      const reqQty = Number(item.quantity);
+
+      inventory.reserved_quantity = String(currentReserved + reqQty) as any;
+      await this.inventoryRepository.save(inventory);
+    }
+
+    // Step 3: emit reserved
+    await this.kafkaProducer.emit(TOPICS.INVENTORY_RESERVED, {
+      userID,
+      items,
+      correlationId,
+    });
+    console.log("✅ reserved");
+  }
 
   async createInventory(createInventoryDto: CreateInventoryDto): Promise<InventoryResponseDto> {
     // Check if product variant exists
@@ -288,7 +351,6 @@ export class InventoryService implements OnModuleInit {
   private mapToResponseDto(inventory: Inventory): InventoryResponseDto {
     return {
       id: inventory.id,
-      variant_id: inventory.variant_id,
       product_variant_id: inventory.product_variant_id,
       quantity: inventory.quantity,
       reserved_quantity: inventory.reserved_quantity,

@@ -7,6 +7,7 @@ import { CategoryController } from './controller/category.controller';
 import { ProductService } from './service/product.service';
 import { Product, ProductVariant, VariantDimension, VariantDimensionValue, ProductVariantValue, Category } from './entity/product.entity'
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { KafkaProducerService } from './service/producer.service';
 
 @Module({
   imports: [
@@ -30,13 +31,16 @@ import { TypeOrmModule } from '@nestjs/typeorm';
               brokers: (configService.get<string>('KAFKA_BROKERS') || 'localhost:9092').split(','),
             },
             producerOnlyMode: true,
+            // consumer: {
+            //   groupId: 'product-service-consumer', // mỗi service nên có group riêng
+            // },
           },
         }),
       },
     ]),
   ],
   controllers: [ProductController, DimensionController, CategoryController],
-  providers: [ProductService],
-  exports: [ProductService],
+  providers: [ProductService, KafkaProducerService],
+  exports: [ProductService, KafkaProducerService],
 })
 export class ProductModule {}

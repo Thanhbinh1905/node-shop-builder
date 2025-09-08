@@ -9,6 +9,7 @@ import { InventoryService } from './service/inventory.service';
 import { InventoryConsumerController } from './messaging/consumer.controller';
 import { InventoryController } from './controller/inventory.controller';
 import Redis from 'ioredis';
+import { KafkaProducerService } from './service/producer.service';
 
 @Module({
   imports: [
@@ -47,8 +48,9 @@ import Redis from 'ioredis';
         return new Redis(url);
       },
     },
+    KafkaProducerService
   ],
-  exports: [InventoryService],
+  exports: [InventoryService, KafkaProducerService],
 })
 export class InventoryModule {}
 

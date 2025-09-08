@@ -12,4 +12,10 @@ export class InventoryConsumerController {
     const value = message?.value ?? message;
     await this.inventoryService.processVariantCreated(value);
   }
+
+  @EventPattern(TOPICS.BASKET_CHECKEDOUT)
+  async handlerBasketCheckout(@Payload() message: any, @Ctx() context: KafkaContext) {
+    const value = message?.value ?? message;
+    await this.inventoryService.processBasketCheckout(value);
+  }
 }

@@ -12,5 +12,3 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
   ],
 })
 export class AppModule {}
-
-// TODO: impl kafka

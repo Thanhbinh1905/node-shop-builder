@@ -9,5 +9,5 @@ export class AddItemDTO {
   @IsNotEmpty()
   @IsInt()
   @Min(1)
-  qty: number;
+  quantity: number;
 }

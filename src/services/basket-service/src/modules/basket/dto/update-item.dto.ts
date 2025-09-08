@@ -4,5 +4,5 @@ export class UpdateQtyDto {
   @IsInt()
   @Min(1)
   @IsNotEmpty()
-  qty: number;
+  quantity: number;
 }

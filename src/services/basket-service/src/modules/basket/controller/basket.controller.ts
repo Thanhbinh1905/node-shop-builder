@@ -2,6 +2,7 @@ import { Body, Controller, Delete, Get, Param, Patch, Post } from '@nestjs/commo
 import { BasketItem, BasketService } from '../service/basket.service';
 import { AddItemDTO } from '../dto/add-item.dto';
 import { UpdateQtyDto } from '../dto/update-item.dto';
+import { CheckoutDto, CheckoutItemDto } from '../dto/checkout.dto';
 
 @Controller('basket')
 export class BasketController {
@@ -28,7 +29,7 @@ export class BasketController {
         @Param('product_variants_id') product_variants_id: string,
         @Body() dto: UpdateQtyDto,
     ): Promise<BasketItem | { message: string }> {
-        const updated = await this.basketService.updateQuantity(userId, product_variants_id, dto.qty);
+        const updated = await this.basketService.updateQuantity(userId, product_variants_id, dto.quantity);
         return updated ?? { message: 'Item not found' };
     }
 
@@ -47,4 +48,14 @@ export class BasketController {
         await this.basketService.clearBasket(userId);
         return { message: 'Basket cleared' };
     }
+
+    @Post(':userId')
+    async checkoutBasket(
+        @Param('userId') userId: string,
+        @Body() input: CheckoutDto,
+    ) {
+        await this.basketService.checkout(userId, input);
+        return { message: "checkout requested" };
+    }
+
 }
