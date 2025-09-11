@@ -1,12 +1,20 @@
 {
   "compilerOptions": {
+    "target": "ES2024",
     "module": "commonjs",
+    "strict": true,
     "esModuleInterop": true,
-    "target": "es6",
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "experimentalDecorators": true,
+    "lib": ["es5", "es6", "dom"],
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "typeRoots": ["./src/types", "./node_modules/@types"],
     "moduleResolution": "node",
-    "sourceMap": true,
-    "outDir": "dist",
-    "rootDir": "src"
+    "emitDecoratorMetadata": true,
+    "strictPropertyInitialization": false
   },
-  "lib": ["es2022"]
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
 }

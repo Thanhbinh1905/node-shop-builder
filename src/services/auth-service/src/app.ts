@@ -7,10 +7,14 @@ import { errorHandler } from "./middlewares/errorHandler.middleware";
 import { globalMiddleware } from "./middlewares/global.middleware";
 import { reqLogger } from './middlewares/req.middleware';
 import routes from "./routes";
+import { config } from './config';
+import { corsMiddleware } from './middlewares/cors.middleware';
 
 const app = express();
 
 globalMiddleware(app);
+
+app.use(corsMiddleware);
 
 app.use(reqLogger);
 
@@ -26,7 +30,7 @@ app.use((req: Request, res: Response) => {
 const port = process.env.PORT || 5001;
 
 app.listen(port, () => {
-  console.log(
-    `${new Date().toLocaleString('vi-VN')}: Express is listening on port ${port}`,
+  logger.info(
+    `${config.SERVICE_NAME} is listening on port ${port}`,
   );
 });

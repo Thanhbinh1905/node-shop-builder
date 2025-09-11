@@ -6,6 +6,6 @@ export const globalMiddleware = (app: Application) => {
   app.use(json());
   app.use(urlencoded({ extended: true }));
   app.use(express.json());
-  app.use(cors());
+  // app.use(cors());
   app.use(helmet());
 };

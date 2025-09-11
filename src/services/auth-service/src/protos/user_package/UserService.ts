@@ -2,8 +2,8 @@
 
 import type * as grpc from '@grpc/grpc-js'
 import type { MethodDefinition } from '@grpc/proto-loader'
-import type { GetUserByEmailRequest as _user_package_GetUserByEmailRequest, GetUserByEmailRequest__Output as _user_package_GetUserByEmailRequest__Output } from '../user_package/GetUserByEmailRequest';
-import type { User as _user_package_User, User__Output as _user_package_User__Output } from '../user_package/User';
+import type { GetUserByEmailRequest as _user_package_GetUserByEmailRequest, GetUserByEmailRequest__Output as _user_package_GetUserByEmailRequest__Output } from './GetUserByEmailRequest';
+import type { User as _user_package_User, User__Output as _user_package_User__Output } from './User';
 
 export interface UserServiceClient extends grpc.Client {
   GetUserByEmail(argument: _user_package_GetUserByEmailRequest, metadata: grpc.Metadata, options: grpc.CallOptions, callback: grpc.requestCallback<_user_package_User__Output>): grpc.ClientUnaryCall;

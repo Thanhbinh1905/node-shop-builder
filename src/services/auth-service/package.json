@@ -1,7 +1,7 @@
 {
-  "name": "rest-api",
+  "name": "auth-service",
   "version": "1.0.0",
-  "description": "create a basic Restful API with nodejs, express, mongodb",
+  "description": "Auth service",
   "main": "dist/index.js",
   "scripts": {
     "start": "node dist/app.js",

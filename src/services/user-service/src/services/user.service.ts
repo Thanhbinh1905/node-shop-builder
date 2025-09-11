@@ -3,7 +3,6 @@ import * as protoLoader from '@grpc/proto-loader';
 import { ProtoGrpcType } from '../protos/user';
 import path from 'path';
 
-
 const PROTO_PATH = path.join(__dirname, '../protos/user.proto');
 
 const packageDefinition = protoLoader.loadSync(PROTO_PATH, {

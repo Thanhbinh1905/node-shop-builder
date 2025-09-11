@@ -3,7 +3,7 @@ import * as grpc from '@grpc/grpc-js';
 import { createUserService } from './services/user.service';
 
 dotenv.config();
-const GRPC_PORT = process.env.GRPC_PORT || '0.0.0.0:9001';
+const GRPC_PORT = process.env.GRPC_PORT || '0.0.0.0:9002';
 
 const server = createUserService();
 
