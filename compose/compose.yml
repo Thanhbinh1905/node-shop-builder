@@ -31,11 +31,12 @@ services:
       - kafka
     entrypoint: ["/bin/sh","-c"]
     command: |
-      "
       kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic product.variant.created --replication-factor 1 --partitions 3;
-      sleep 5;
-      echo 'Topics ensured';
-      "
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic basket.checkedout --replication-factor 1 --partitions 3;
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic inventory.reserved --replication-factor 1 --partitions 3;
+      kafka-topics --bootstrap-server kafka:29092 --create --if-not-exists --topic inventory.reserved.fail --replication-factor 1 --partitions 3;
+      echo '✅ Kafka topics ensured';
+
 
   redis:
     image: redis:7-alpine
@@ -74,7 +75,18 @@ services:
       - "5433:5432"
     volumes:
       - inventory_db:/var/lib/postgresql/data
+  basketdb:
+    image: postgres:17.6-alpine3.22
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=secret
+      - POSTGRES_DB=basket
+    ports:
+      - "5434:5432"
+    volumes:
+      - basket_db:/var/lib/postgresql/data
 volumes:
   catalogdb_db:
   inventory_db:
   mongo_user:
+  basket_db:

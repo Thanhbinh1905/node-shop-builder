@@ -1,13 +1,14 @@
-import { Injectable, NotFoundException, BadRequestException, Inject, OnModuleInit } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException, Inject, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
 import { ClientKafka } from '@nestjs/microservices';
 import { TOPICS } from '../../../config/kafka.config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, Like, FindManyOptions, LessThan } from 'typeorm';
 import { Product, ProductVariant, VariantDimension, VariantDimensionValue, ProductVariantValue, Category } from '../entity/product.entity';
 import { QueryProductDto } from '../dto/query-product.dto';
+import { KafkaProducerService } from './producer.service';
 
 @Injectable()
-export class ProductService implements OnModuleInit {
+export class ProductService {
   constructor(
     @InjectRepository(Product)
     private readonly productRepo: Repository<Product>,
@@ -27,13 +28,9 @@ export class ProductService implements OnModuleInit {
     @InjectRepository(Category)
     private readonly categoryRepo: Repository<Category>,
 
-    @Inject('KAFKA_PRODUCT_CLIENT')
-    private readonly kafkaClient: ClientKafka,
+    private readonly kafkaProducer: KafkaProducerService,
   ) {}
 
-  async onModuleInit() {
-    await this.kafkaClient.connect();
-  }
   // =============================
   // Category CRUD
   // =============================
@@ -160,7 +157,7 @@ export class ProductService implements OnModuleInit {
     const fullVariant = await this.findVariant(savedVariant.id);
 
     // Emit Kafka event for inventory-service
-    await this.kafkaClient.emit(TOPICS.PRODUCT_VARIANT_CREATED, {
+    await this.kafkaProducer.emit(TOPICS.PRODUCT_VARIANT_CREATED, {
       key: fullVariant.id,
       value: {
         variant_id: fullVariant.id,
