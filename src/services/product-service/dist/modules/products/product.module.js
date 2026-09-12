@@ -16,13 +16,13 @@ const category_controller_1 = require("./controller/category.controller");
 const product_service_1 = require("./service/product.service");
 const product_entity_1 = require("./entity/product.entity");
 const typeorm_1 = require("@nestjs/typeorm");
+const producer_service_1 = require("./service/producer.service");
 let ProductModule = class ProductModule {
 };
 exports.ProductModule = ProductModule;
 exports.ProductModule = ProductModule = __decorate([
     (0, common_1.Module)({
         imports: [
-            config_1.ConfigModule,
             typeorm_1.TypeOrmModule.forFeature([
                 product_entity_1.Product,
                 product_entity_1.ProductVariant,
@@ -34,7 +34,6 @@ exports.ProductModule = ProductModule = __decorate([
             microservices_1.ClientsModule.registerAsync([
                 {
                     name: 'KAFKA_PRODUCT_CLIENT',
-                    imports: [config_1.ConfigModule],
                     inject: [config_1.ConfigService],
                     useFactory: (configService) => ({
                         transport: microservices_1.Transport.KAFKA,
@@ -50,8 +49,8 @@ exports.ProductModule = ProductModule = __decorate([
             ]),
         ],
         controllers: [product_controller_1.ProductController, dimension_controller_1.DimensionController, category_controller_1.CategoryController],
-        providers: [product_service_1.ProductService],
-        exports: [product_service_1.ProductService],
+        providers: [product_service_1.ProductService, producer_service_1.KafkaProducerService],
+        exports: [product_service_1.ProductService, producer_service_1.KafkaProducerService],
     })
 ], ProductModule);
 //# sourceMappingURL=product.module.js.map

@@ -8,9 +8,6 @@ export class Inventory {
   id: string;
 
   @Column('uuid', { nullable: true })
-  variant_id: string;
-
-  @Column('uuid')
   product_variant_id: string;
 
   @Column({type: 'bigint', default: 0})

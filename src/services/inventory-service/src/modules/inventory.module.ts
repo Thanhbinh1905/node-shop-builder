@@ -8,10 +8,11 @@ import { ProductVariantReplica } from './entity/product_variants_replica.entity'
 import { InventoryService } from './service/inventory.service';
 import { InventoryConsumerController } from './messaging/consumer.controller';
 import { InventoryController } from './controller/inventory.controller';
+import Redis from 'ioredis';
+import { KafkaProducerService } from './service/producer.service';
 
 @Module({
   imports: [
-    ConfigModule,
     TypeOrmModule.forFeature([
       Inventory,
       InventoryLog,
@@ -20,7 +21,6 @@ import { InventoryController } from './controller/inventory.controller';
     ClientsModule.registerAsync([
       {
         name: 'KAFKA_INVENTORY_CLIENT',
-        imports: [ConfigModule],
         inject: [ConfigService],
         useFactory: (configService: ConfigService) => ({
           transport: Transport.KAFKA,
@@ -45,12 +45,12 @@ import { InventoryController } from './controller/inventory.controller';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => {
         const url = configService.get<string>('REDIS_URL') || 'redis://localhost:6379';
-        // eslint-disable-next-line @typescript-eslint/no-var-requires
-        const Redis = require('ioredis');
         return new Redis(url);
       },
     },
+    KafkaProducerService
   ],
-  exports: [InventoryService],
+  exports: [InventoryService, KafkaProducerService],
 })
 export class InventoryModule {}
+
